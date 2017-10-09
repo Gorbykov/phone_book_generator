@@ -9,27 +9,34 @@ class FileLoader
 
   attr_reader :region_prefix, :name_generator
 
-  @@region = ''
-
   def initialize
-    if @@region == ''
+    if @@region.nil?
       raise 'Set region before instantiate'
     end
+    @region_selector = RegionSelector.new(@@region)
+    open
+    @region_prefix = RegionPrefix.new(@files['region_prefix'])
+    read
 
-    region_prefix_file = File.open("lib/#{@@region}/RegionPrefix.dat", 'r').set_encoding('UTF-8')
-    @region_prefix = RegionPrefix.new(region_prefix_file)
-    first_names_male_file = File.open("lib/#{@@region}/FirstNamesMale.dat", 'r').set_encoding('UTF-8')
-    first_names_female_file = File.open("lib/#{@@region}/FirstNamesFemale.dat", 'r').set_encoding('UTF-8')
-    last_names_file = File.open("lib/#{@@region}/LastNames.dat", 'r').set_encoding('UTF-8')
-    @name_generator = NameGenerator.new(@region_selector,
-                                        first_names_male_file.readlines,
-                                        first_names_female_file.readlines,
-                                        last_names_file.readlines)
+    @name_generator = NameGenerator.new(@region_selector,@files)
+  end
+
+  def open
+    @files = Hash.new
+    Dir.glob("lib/#{@@region}/*.dat") do |file|
+      @files[File.basename(file,'.dat')] = File.open(file,'r').set_encoding('UTF-8')
+    end
+  end
+
+  def read
+    @files.keys.each do |key|
+      next if key == 'region_prefix'
+      @files[key] == @files[key].readlines
+    end
   end
 
   def self.region=(region)
     @@region = region
-    @region_selector = RegionSelector.new(region)
   end
 
 

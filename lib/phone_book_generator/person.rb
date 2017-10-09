@@ -13,13 +13,13 @@ class Person
     @name = ''
     @name_generator = @file_loader.name_generator
     #Addres
+    @zip = '222000'
     @addres = ''
     @adress_generator
 
     @phone_number = '(29)777-59-98'
     @phone_number_generator
 
-    @zip = '222000'
   end
 
   def generate
